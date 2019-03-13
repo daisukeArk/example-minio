@@ -1,0 +1,25 @@
+version: '3'
+
+services:
+  minio:
+    container_name: example_minio
+    image: minio/minio:latest
+    ports:
+      - 9090:9000
+    environment:
+      - MINIO_ACCESS_KEY=admin
+      - MINIO_SECRET_KEY=password
+    entrypoint: sh
+    command: -c "
+      mkdir -p /data/.minio.sys/buckets;
+      cp -r /policies/* /data/.minio.sys/;
+      cp -r /export/* /data/;
+      find /data -name '.DS_Store' -type f -delete;
+      find /data -name '.gitkeep' -type f -delete;
+      /usr/bin/minio server /data;
+      "
+    volumes:
+      - ./minio/data:/data
+      - ./minio/export:/export
+      - ./minio/config:/root/.minio
+      - ./minio/policies:/policies
